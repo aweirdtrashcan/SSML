@@ -23,7 +23,7 @@
     <ClInclude Include="InstructionSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Vector2d.hpp">
+    <ClInclude Include="Vector.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
