@@ -1,10 +1,34 @@
 #include <iostream>
 
-#include "Vector2d.hpp"
+#include "Matrix.hpp"
 
 #include <chrono>
 
+void vec_test();
+
 int main() {
+
+	SSML::MATRIX identity0 = {
+		1.0, 2.0f, 1.0f, 1.0f,
+		0.0f, 1.0f, 0.0f, 5.0f,
+		2.0f, 3.0f, 4.0f, 7.0f,
+		3.0f, 4.0f, 1.0f, 6.0
+	};
+
+	SSML::MATRIX identity1 = {
+		2.0f, 5.0f, 1.0f, 4.0f,
+		6.0f, 7.0f, 3.0f, 2.0f,
+		1.0f, 8.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f
+	};
+
+	SSML::XMMMATRIX xmmIdentity0 = identity0;
+	SSML::XMMMATRIX xmmIdentity1 = identity1;
+
+	SSML::XMMMATRIX xmmIdentity2 = xmmIdentity0 * xmmIdentity1;
+}
+
+void vec_test() {
 	for (int i = 0; i < 33904; i++) {
 		SSML::VECTOR4D v = { 3.5984f, 4.3890f, 3.3904f, 8.6632f };
 		SSML::XMMVECTOR xmv = v;

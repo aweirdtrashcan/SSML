@@ -57,6 +57,10 @@ namespace SSML {
 			v.z = this->z * other.z;
 			return v;
 		}
+
+		VECTOR3D() {}
+		VECTOR3D(float x, float y, float z) : x(x), y(y), z(z) {}
+		VECTOR3D(float* float3dArray) : x(float3dArray[0]), y(float3dArray[1]), z(float3dArray[2]) {}
 	};
 
 	struct VECTOR4D {
@@ -85,6 +89,10 @@ namespace SSML {
 		}
 
 		operator float*() const { return (float*)this; }
+		
+		VECTOR4D() {}
+		VECTOR4D(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
+		VECTOR4D(float* float4dArray) : x(float4dArray[0]), y(float4dArray[1]), z(float4dArray[2]), w(float4dArray[3]) {}
 	};
 
 	struct XMMVECTOR {
@@ -99,7 +107,7 @@ namespace SSML {
 			m4d[1] = vector.y;
 			m4d[2] = 0.0f;
 			m4d[3] = 0.0f;
-			m_Data = _mm_load_ps(m4d);
+			m_Data = _mm_loadu_ps(m4d);
 		}
 
 		XMMVECTOR(const VECTOR3D& vector) {
@@ -108,11 +116,15 @@ namespace SSML {
 			m4d[1] = vector.y;
 			m4d[2] = vector.z;
 			m4d[3] = 0.0f;
-			m_Data = _mm_load_ps(m4d);
+			m_Data = _mm_loadu_ps(m4d);
+		}
+
+		XMMVECTOR(float* uFloatArray) {
+			m_Data = _mm_loadu_ps(uFloatArray);
 		}
 
 		XMMVECTOR(const VECTOR4D& vector) {
-			m_Data = _mm_load_ps(vector);
+			m_Data = _mm_loadu_ps(vector);
 		}
 
 		XMMVECTOR(__m128 other) {
@@ -130,40 +142,44 @@ namespace SSML {
 		}
 
 		XMMVECTOR operator+(const XMMVECTOR& other) {
-			XMMVECTOR xmv;
-			xmv.m_Data = _mm_add_ps(m_Data, other.m_Data);
-			return xmv;
+			return _mm_add_ps(m_Data, other.m_Data);
 		}
 
 		XMMVECTOR operator-(const XMMVECTOR& other) {
-			XMMVECTOR xmv;
-			xmv.m_Data = _mm_sub_ps(m_Data, other.m_Data);
-			return xmv;
+			return _mm_sub_ps(m_Data, other.m_Data);;
 		}
 
 		static XMMVECTOR VectorDot(const XMMVECTOR& vec1, const XMMVECTOR& vec2) {
 			constexpr int mask = 0xFF;
-			XMMVECTOR dotResult;
-			dotResult.m_Data = _mm_dp_ps(vec1.m_Data, vec2.m_Data, mask);
-			return dotResult;
+			return _mm_dp_ps(vec1.m_Data, vec2.m_Data, mask);
 		}
 
 		operator VECTOR2D() const {
 			float floatArray[4];
-			_mm_store_ps(floatArray, m_Data);
+			_mm_storeu_ps(floatArray, m_Data);
 			return { floatArray[0], floatArray[1] };
 		}
 
 		operator VECTOR3D() const {
 			float floatArray[4];
-			_mm_store_ps(floatArray, m_Data);
+			_mm_storeu_ps(floatArray, m_Data);
 			return { floatArray[0], floatArray[1], floatArray[2] };
 		}
 
 		operator VECTOR4D() const {
 			float floatArray[4];
-			_mm_store_ps(floatArray, m_Data);
-			return { floatArray[0], floatArray[1], floatArray[3] };
+			_mm_storeu_ps(floatArray, m_Data);
+			return { floatArray[0], floatArray[1], floatArray[2], floatArray[3] };
+		}
+
+		void GetXYZW(float* outFloatArray) const {
+			_mm_store_ps(outFloatArray, m_Data);
+		}
+
+		float GetVectorAsOne() const {
+			float result[4];
+			_mm_store_ps1(result, m_Data);
+			return result[0];
 		}
 	};
 }
