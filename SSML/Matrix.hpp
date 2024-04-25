@@ -17,6 +17,10 @@ namespace SSML {
 			m_Data[3] = { d00, d01, d02, d03 };
 		}
 
+		MATRIX(const float* pArray) {
+			memcpy(&this->m_Data, pArray, sizeof(VECTOR4D) * 4);
+		}
+
 		MATRIX() {}
 
 		static MATRIX Identity() {
@@ -59,6 +63,10 @@ namespace SSML {
 		void SetRowD(const VECTOR4D& vector) {
 			m_Data[3] = vector;
 		}
+
+		float* GetAsArray() const {
+			return (float*)this->m_Data;
+		}
 	};
 
 	struct alignas(64) XMMMATRIX {
@@ -69,6 +77,13 @@ namespace SSML {
 			m_Data[1] = matrix.m_Data[1];
 			m_Data[2] = matrix.m_Data[2];
 			m_Data[3] = matrix.m_Data[3];
+		}
+
+		XMMMATRIX(const float* pArray) {
+			m_Data[0] = _mm_load_ps(&pArray[0]);
+			m_Data[1] = _mm_load_ps(&pArray[4]);
+			m_Data[2] = _mm_load_ps(&pArray[8]);
+			m_Data[3] = _mm_load_ps(&pArray[12]);
 		}
 
 		XMMMATRIX() {}
@@ -119,6 +134,84 @@ namespace SSML {
 			matrix.m_Data[3] = m_Data[3] - other.m_Data[3];
 
 			return matrix;
+		}
+
+		XMMMATRIX RotateX(float angle) {
+			float matrixArray[16];
+
+			matrixArray[0] = 1.0f;
+			matrixArray[1] = 0.0f;
+			matrixArray[2] = 0.0f;
+			matrixArray[3] = 0.0f;
+
+			matrixArray[4] = 0.0f;
+			matrixArray[5] = cosf(angle);
+			matrixArray[6] = -sinf(angle);
+			matrixArray[7] = 0.0f;
+
+			matrixArray[8] = 0.0f;
+			matrixArray[9] = sinf(angle);
+			matrixArray[10] = cosf(angle);
+			matrixArray[11] = 0.0f;
+
+			matrixArray[12] = 0.0f;
+			matrixArray[13] = 0.0f;
+			matrixArray[14] = 0.0f;
+			matrixArray[15] = 1.0f;
+
+			return (*this) * XMMMATRIX(matrixArray);
+		}
+
+		XMMMATRIX RotateY(float angle) {
+			float matrixArray[16];
+
+			matrixArray[0] = cosf(angle);
+			matrixArray[1] = 0.0f;
+			matrixArray[2] = sinf(angle);
+			matrixArray[3] = 0.0f;
+
+			matrixArray[4] = 0.0f;
+			matrixArray[5] = 1.0f;
+			matrixArray[6] = 0.0f;
+			matrixArray[7] = 0.0f;
+
+			matrixArray[8] = -sinf(angle);
+			matrixArray[9] = 0.0f;
+			matrixArray[10] = cosf(angle);
+			matrixArray[11] = 0.0f;
+
+			matrixArray[12] = 0.0f;
+			matrixArray[13] = 0.0f;
+			matrixArray[14] = 0.0f;
+			matrixArray[15] = 1.0f;
+
+			return (*this) * XMMMATRIX(matrixArray);
+		}
+
+		XMMMATRIX RotateZ(float angle) {
+			float matrixArray[16];
+
+			matrixArray[0] = cosf(angle);
+			matrixArray[1] = -sinf(angle);
+			matrixArray[2] = 0.0f;
+			matrixArray[3] = 0.0f;
+
+			matrixArray[4] = sinf(angle);
+			matrixArray[5] = cosf(angle);
+			matrixArray[6] = 0.0f;
+			matrixArray[7] = 0.0f;
+
+			matrixArray[8] = 0.0f;
+			matrixArray[9] = 0.0f;
+			matrixArray[10] = 1.0f;
+			matrixArray[11] = 0.0f;
+
+			matrixArray[12] = 0.0f;
+			matrixArray[13] = 0.0f;
+			matrixArray[14] = 0.0f;
+			matrixArray[15] = 1.0f;
+
+			return (*this) * XMMMATRIX(matrixArray);
 		}
 	};
 }
